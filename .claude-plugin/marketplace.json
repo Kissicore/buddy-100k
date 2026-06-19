@@ -1,0 +1,18 @@
+{
+  "name": "buddy-100k",
+  "owner": {
+    "name": "Andrea Vega — FÓRMULA 100K",
+    "url": "https://www.instagram.com/andreaestratega/"
+  },
+  "metadata": {
+    "description": "El marketplace de los regalos de FÓRMULA 100K.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "buddy-100k",
+      "source": "./",
+      "description": "Tu mascota de terminal que te habla con tus pendientes. Nace única para ti y te saluda al abrir Claude Code."
+    }
+  ]
+}

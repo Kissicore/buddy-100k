@@ -1,0 +1,16 @@
+{
+  "name": "buddy-100k",
+  "version": "1.0.0",
+  "description": "Buddy 100K — tu mascota de terminal que te habla con tus pendientes. Un regalo de FÓRMULA 100K.",
+  "type": "commonjs",
+  "bin": {
+    "buddy": "bin/buddy.js"
+  },
+  "scripts": {
+    "start": "node bin/buddy.js",
+    "test": "node --test"
+  },
+  "keywords": ["claude-code", "terminal", "pet", "tamagotchi", "buddy", "formula100k"],
+  "author": "Andrea Vega — FÓRMULA 100K",
+  "license": "MIT"
+}

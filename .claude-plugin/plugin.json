@@ -1,0 +1,11 @@
+{
+  "name": "buddy-100k",
+  "version": "1.0.0",
+  "description": "Buddy 100K — tu mascota de terminal que te habla con tus pendientes. Nace única para ti y te saluda al abrir Claude Code. Un regalo de FÓRMULA 100K.",
+  "author": {
+    "name": "Andrea Vega — FÓRMULA 100K",
+    "url": "https://www.instagram.com/andreaestratega/"
+  },
+  "homepage": "https://domina-claude.vercel.app/buddy-100k",
+  "keywords": ["pet", "tamagotchi", "buddy", "terminal", "productividad", "formula100k"]
+}

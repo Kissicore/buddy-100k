@@ -1,6 +1,7 @@
 'use strict';
 
 const { getSpecies, getRarity } = require('./roster');
+const { buildPersona } = require('./persona');
 
 const ANSI = {
   reset: '\x1b[0m',
@@ -37,27 +38,46 @@ function renderSprite(buddy, mood, opts = {}) {
   return faces.map((line) => colorize(line, color, opts)).join('\n');
 }
 
-const RARITY_BADGE = {
-  comun: '',
-  raro: '· raro',
-  epico: '✦ épico',
-  legendario: '✨ LEGENDARIO',
+const RARITY_LABEL = {
+  comun: 'COMÚN',
+  raro: 'RARO',
+  epico: 'ÉPICO',
+  legendario: 'LEGENDARIO',
 };
 
+// Barra de progreso de un stat (0–100) con bloques.
+function statBar(value, opts = {}, color) {
+  const width = 10;
+  const filled = Math.max(0, Math.min(width, Math.round((value / 100) * width)));
+  const bar = '█'.repeat(filled) + '░'.repeat(width - filled);
+  return colorize(bar, color, opts);
+}
+
+// Línea de cabecera con estrellas + rareza + (SHINY).
+function headerLine(buddy, persona, opts) {
+  const rarity = getRarity(buddy.rarity);
+  const rc = rarity.color || 'yellow';
+  let head = colorize(`${persona.stars} ${RARITY_LABEL[buddy.rarity] || ''}`.trim(), rc, opts);
+  if (persona.shiny) head += '   ' + colorize('✨ SHINY ✨', 'yellow', opts);
+  return head;
+}
+
 /**
- * Vista principal: sprite + nombre + mensaje + lista corta de pendientes.
+ * Vista principal: cabecera + sprite + nombre + personalidad + mensaje + pendientes.
  */
 function renderBuddy({ buddy, mood, message, pendings = [] }, opts = {}) {
   const species = getSpecies(buddy.species);
   const rarity = getRarity(buddy.rarity);
   const color = rarity.color || species.color;
+  const persona = buildPersona(buddy);
 
   const lines = [];
+  lines.push('  ' + headerLine(buddy, persona, opts) + colorize('   ' + species.label.toUpperCase(), 'dim', opts));
+  lines.push('');
   lines.push(renderSprite(buddy, mood, opts));
   lines.push('');
-
-  const badge = RARITY_BADGE[buddy.rarity] ? '  ' + colorize(RARITY_BADGE[buddy.rarity], rarity.color || 'yellow', opts) : '';
-  lines.push(colorize(buddy.name, color, { ...opts, color: opts.color }) + badge + colorize(' — ' + species.label, 'dim', opts));
+  lines.push('  ' + colorize(buddy.name, color, opts) + (species.star ? ' ⭐' : ''));
+  lines.push('  ' + colorize(`"${persona.trait}"`, 'dim', opts));
   lines.push('');
   lines.push(message);
 
@@ -77,26 +97,40 @@ function renderBuddy({ buddy, mood, message, pendings = [] }, opts = {}) {
 }
 
 /**
- * Ficha completa (/buddy card).
+ * Ficha completa (/buddy card) — al estilo "trading card".
  */
-function renderCard({ buddy, mood, message, pendings = [], identity }, opts = {}) {
+function renderCard({ buddy, mood, message, pendings = [] }, opts = {}) {
   const species = getSpecies(buddy.species);
   const rarity = getRarity(buddy.rarity);
+  const color = rarity.color || species.color;
+  const persona = buildPersona(buddy);
   const born = buddy.bornAt ? new Date(buddy.bornAt).toLocaleDateString() : '—';
 
+  const W = 34;
+  const top = '╭' + '─'.repeat(W) + '╮';
+  const bot = '╰' + '─'.repeat(W) + '╯';
+
   const lines = [];
-  lines.push(colorize('╭─ BUDDY 100K ─────────────╮', 'magenta', opts));
+  lines.push(colorize(top, color, opts));
+  lines.push('  ' + headerLine(buddy, persona, opts));
+  lines.push('  ' + colorize(species.label.toUpperCase() + (species.star ? ' ⭐' : ''), 'dim', opts));
+  lines.push('');
   lines.push(renderSprite(buddy, mood, opts));
   lines.push('');
-  lines.push(`  Nombre:  ${colorize(buddy.name, species.color, opts)}`);
-  lines.push(`  Especie: ${species.label}${species.star ? ' ⭐' : ''}`);
-  lines.push(`  Rareza:  ${rarity.label} ${rarity.ornament}`);
-  lines.push(`  Ánimo:   ${mood}`);
-  lines.push(`  Nació:   ${born}`);
-  lines.push(`  Pendientes hoy: ${pendings.length}`);
-  lines.push(colorize('╰──────────────────────────╯', 'magenta', opts));
+  lines.push('  ' + colorize(buddy.name, color, opts));
+  lines.push('  ' + colorize(`"${persona.trait}"`, 'dim', opts));
   lines.push('');
-  lines.push(message);
+  for (const s of persona.stats) {
+    const label = (s.label + ' ').padEnd(12, ' ');
+    lines.push(`  ${label}${statBar(s.value, opts, color)} ${String(s.value).padStart(3)}`);
+  }
+  lines.push('');
+  lines.push('  ' + colorize(`Nació ${born} · ${pendings.length} pendiente${pendings.length === 1 ? '' : 's'} hoy`, 'dim', opts));
+  lines.push(colorize(bot, color, opts));
+  if (message) {
+    lines.push('');
+    lines.push(message);
+  }
   return lines.join('\n');
 }
 

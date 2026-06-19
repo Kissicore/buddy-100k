@@ -5,7 +5,7 @@ const path = require('path');
 
 const { DIR, ensureDir } = require('./config');
 const { getIdentity } = require('../core/identity');
-const { pickBuddy } = require('../core/roster');
+const { pickBuddy, getSpecies, SPECIES } = require('../core/roster');
 
 const BUDDY_PATH = path.join(DIR, 'buddy.json');
 
@@ -32,16 +32,41 @@ function save(buddy) {
 /**
  * Crea (eclosiona) un buddy determinista para la identidad actual.
  * No escribe a disco; eso lo decide el caller (para poder animar antes).
+ *
+ * @param {object} [opts]
+ * @param {string} [opts.identity]  fuerza la identidad
+ * @param {string|number} [opts.salt]  re-rollea otra criatura para la misma persona
+ * @param {string} [opts.forceSpecies]  fija la especie (comando "pick")
+ * @param {string} [opts.nowIso]
  */
-function generate(identityOverride, nowIso) {
-  const { identity, hash, rng } = getIdentity(identityOverride);
+function generate(opts = {}) {
+  // Compat: si llaman generate("identidad") como antes.
+  if (typeof opts === 'string') opts = { identity: opts };
+  const { identity, hash, rng } = getIdentity(opts.identity, opts.salt);
   const picked = pickBuddy(rng);
+  if (opts.forceSpecies && getSpecies(opts.forceSpecies)) {
+    const sp = getSpecies(opts.forceSpecies);
+    picked.species = sp.key;
+    // re-elige un nombre acorde a la especie elegida
+    picked.name = sp.names[Math.floor(rng() * sp.names.length)];
+  }
   return {
     ...picked,
-    bornAt: nowIso || new Date().toISOString(),
+    bornAt: opts.nowIso || new Date().toISOString(),
     identityHash: hash,
+    salt: opts.salt || null,
   };
 }
+
+/** Renombra el buddy guardado. */
+function rename(newName) {
+  const b = loadOrNull();
+  if (!b) return null;
+  b.name = String(newName).trim().slice(0, 24);
+  return save(b);
+}
+
+const SPECIES_KEYS = SPECIES.map((s) => s.key);
 
 /**
  * Devuelve el buddy existente o null. Si está corrupto, lo borra para re-eclosionar.
@@ -56,4 +81,4 @@ function loadOrNull() {
   return b;
 }
 
-module.exports = { BUDDY_PATH, exists, load, save, generate, loadOrNull };
+module.exports = { BUDDY_PATH, exists, load, save, generate, loadOrNull, rename, SPECIES_KEYS };

@@ -43,4 +43,26 @@ function setMuted(muted) {
   return writeConfig(cfg);
 }
 
-module.exports = { DIR, CONFIG_PATH, DEFAULT_CONFIG, ensureDir, readConfig, writeConfig, setMuted };
+/**
+ * Marca de tiempo del último mensaje espontáneo (para el cooldown del hook).
+ */
+function getLastChatterAt() {
+  return readConfig().lastChatterAt || 0;
+}
+function setLastChatterAt(ts) {
+  const cfg = readConfig();
+  cfg.lastChatterAt = ts;
+  return writeConfig(cfg);
+}
+
+module.exports = {
+  DIR,
+  CONFIG_PATH,
+  DEFAULT_CONFIG,
+  ensureDir,
+  readConfig,
+  writeConfig,
+  setMuted,
+  getLastChatterAt,
+  setLastChatterAt,
+};

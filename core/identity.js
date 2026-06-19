@@ -54,10 +54,12 @@ function resolveIdentity() {
 
 /**
  * Devuelve { identity, hash, rng } para alimentar la generación del buddy.
+ * El `salt` opcional permite "re-rollear" otra criatura para la misma persona.
  */
-function getIdentity(override) {
+function getIdentity(override, salt) {
   const identity = (override && String(override)) || resolveIdentity();
-  const hash = fnv1a(identity);
+  const seedStr = salt ? `${identity}::${salt}` : identity;
+  const hash = fnv1a(seedStr);
   return { identity, hash, rng: makeRng(hash) };
 }
 

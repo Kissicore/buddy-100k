@@ -32,7 +32,34 @@ const PET_LINES = [
   '¡Otra vez! Me encanta. 😸',
   '*se estira feliz* listo, ahora a producir.',
   'Eres mi humano favorito. 🐾',
+  '*amasa la pantalla* mrrp 🐾',
+  '😽 me derrito. Ya, ya, sigamos trabajando.',
 ];
+
+// Mensajes espontáneos que el buddy suelta mientras trabajas (hook).
+const CHATTER = {
+  any: [
+    '¿Una pausita para agua? 💧 yo te cuido el puesto.',
+    '*persiguiendo el cursor* 🐾',
+    'Vas bien. Lo estás haciendo mejor de lo que crees. 💜',
+    'Recuerda guardar/commitear de vez en cuando. 😺',
+    '*bosteza* sigue, sigue, te miro orgulloso.',
+    'Pst… respira hondo. Un paso a la vez. 🌿',
+  ],
+  alert: [
+    '¡Ey! Aún tienes {n} en la lista. No te distraigas mucho. 👀',
+    'Quedan {n} pendientes… ¿atacamos "{first}" ya? 🔥',
+    'Te recuerdo con cariño: {n} cosas para hoy. 😼',
+  ],
+  relaxed: [
+    'Día tranqui ({n} pendiente{s}). Aprovecha el momentum. ✨',
+    '"{first}" sigue ahí esperándote, sin prisa pero sin pausa. 🐾',
+  ],
+  celebrating: [
+    'Sin pendientes y aquí seguimos creando. ¡Eres una máquina! 🎉',
+    'Todo al día. Brilla, que para eso naciste. ✨',
+  ],
+};
 
 function pick(arr, rng) {
   const r = typeof rng === 'function' ? rng() : Math.random();
@@ -62,4 +89,19 @@ function petLine(rng) {
   return pick(PET_LINES, rng);
 }
 
-module.exports = { speak, petLine, LINES, PET_LINES };
+/**
+ * Frase espontánea para el modo interactivo (hook). Mezcla genéricas + por ánimo.
+ */
+function chatterLine({ mood, pendings = [], rng } = {}) {
+  const n = pendings.length;
+  const first = n > 0 ? pendings[0].title : '';
+  const s = n === 1 ? '' : 's';
+  const moodBank = CHATTER[mood] || [];
+  const bank = moodBank.concat(CHATTER.any);
+  return pick(bank, rng)
+    .replace(/\{n\}/g, String(n))
+    .replace(/\{s\}/g, s)
+    .replace(/\{first\}/g, first);
+}
+
+module.exports = { speak, petLine, chatterLine, LINES, PET_LINES, CHATTER };

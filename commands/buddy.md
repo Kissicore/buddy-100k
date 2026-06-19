@@ -1,6 +1,6 @@
 ---
 description: Tu Buddy 100K — mascota de terminal que te habla con tus pendientes
-argument-hint: "[card | pet | mute | unmute]"
+argument-hint: "[card | pet | name <nombre> | pick <especie> | reroll | mute | unmute]"
 allowed-tools: Bash(node:*)
 ---
 

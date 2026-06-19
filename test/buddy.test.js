@@ -9,6 +9,9 @@ const { computeMood } = require('../core/mood');
 const { speak } = require('../core/voice');
 const todoFile = require('../sources/todo-file');
 const { collectPendings } = require('../sources');
+const { buildPersona, starsFor } = require('../core/persona');
+const { chatterLine } = require('../core/voice');
+const buddyState = require('../state/buddy');
 
 test('fnv1a es determinista y estable', () => {
   assert.strictEqual(fnv1a('andrea@formula100k.com'), fnv1a('andrea@formula100k.com'));
@@ -75,6 +78,35 @@ test('todo-file parsea checkboxes y detecta urgentes', () => {
 
 test('getSpecies cae a gato-jefe ante key desconocida', () => {
   assert.ok(getSpecies('no-existe'));
+});
+
+test('persona es determinista y coherente', () => {
+  const b = { identityHash: 12345, name: 'Michi', rarity: 'epico' };
+  const p1 = buildPersona(b);
+  const p2 = buildPersona(b);
+  assert.deepStrictEqual(p1, p2);
+  assert.strictEqual(p1.stats.length, 5);
+  for (const s of p1.stats) assert.ok(s.value >= 0 && s.value <= 100);
+  assert.strictEqual(typeof p1.shiny, 'boolean');
+});
+
+test('starsFor mapea rareza a estrellas', () => {
+  assert.strictEqual(starsFor('comun'), '★★☆☆☆');
+  assert.strictEqual(starsFor('legendario'), '★★★★★');
+});
+
+test('chatterLine rellena variables y no rompe', () => {
+  const l = chatterLine({ mood: 'alert', pendings: [{ title: 'Editar VSL' }, { title: 'b' }] });
+  assert.ok(typeof l === 'string' && l.length > 0);
+});
+
+test('generate con salt produce buddies distintos; pick fuerza especie', () => {
+  const base = buddyState.generate({ identity: 'andrea@formula100k.com' });
+  const rerolled = buddyState.generate({ identity: 'andrea@formula100k.com', salt: '999' });
+  const same = base.species === rerolled.species && base.name === rerolled.name && base.rarity === rerolled.rarity;
+  assert.strictEqual(same, false);
+  const picked = buddyState.generate({ identity: 'andrea@formula100k.com', salt: '1', forceSpecies: 'dragon' });
+  assert.strictEqual(picked.species, 'dragon');
 });
 
 test('collectPendings dedup + urgentes primero', async () => {

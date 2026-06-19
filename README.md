@@ -7,9 +7,10 @@ Tu **mascota de terminal** que te habla con tus pendientes del día. Nace **úni
 ## ✨ Qué hace
 
 - **Nace contigo (eclosión 🥚→🐣):** la primera vez que la invocas, un huevito se rompe y nace tu criatura. Es determinista: tu cuenta siempre genera la misma mascota.
-- **18 especies + rareza:** Gato Jefe (la estrella morada ⭐), búho, dragoncito, zorro, pingüino y más. Cada una puede salir Común, Rara, Épica o ✨ Legendaria.
+- **18 especies + rareza + ✨ SHINY:** Gato Jefe (la estrella morada ⭐), búho, dragoncito, zorro, pingüino y más. Cada una sale Común ★★, Rara ★★★, Épica ★★★★ o Legendaria ★★★★★, con ~6% de probabilidad de ser **SHINY** (coleccionable).
+- **Ficha tipo trading card:** estrellas, rasgo de personalidad y stats con barras (Creatividad, Enfoque, Energía, Caos, Carisma).
 - **Te habla con tus pendientes:** lee tus recordatorios y te dice qué tienes hoy, con ánimo según tu carga (relajado, alerta, ¡a celebrar! o dormido de madrugada).
-- **Te saluda al abrir Claude Code** y también lo invocas cuando quieras con `/buddy`.
+- **Es interactivo:** te saluda al abrir Claude Code y te suelta **mensajes espontáneos** mientras trabajas (con cooldown, sin ser pesado). Puedes renombrarlo, re-rollearlo o elegir su especie.
 
 ## 📥 Instalación
 
